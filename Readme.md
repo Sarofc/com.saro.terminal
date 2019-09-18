@@ -9,7 +9,9 @@
 
 > ## 截图
 
+<img src="https://github.com/Sarofc/GameConsole-Unity/blob/master/src/GIF.gif?raw=true" width=60%>
 
+<img src="https://github.com/Sarofc/GameConsole-Unity/blob/master/src/GIF2.gif?raw=true" width=60%>
 
 > ## 快速开始
 
