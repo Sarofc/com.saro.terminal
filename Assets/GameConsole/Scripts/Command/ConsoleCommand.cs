@@ -251,8 +251,8 @@ namespace Saro.Console
             }
 
             // parse method info
-            var sb = new StringBuilder(64);
-            sb.Append("-").Append(command).Append(" : ");
+            var sb = new StringBuilder(512);
+            sb.Append("-").AppendFormat("<color=red>{0}</color>",command).Append(" : ");
 
             if (!string.IsNullOrEmpty(description)) sb.Append(description).Append(" -> ");
 
@@ -301,13 +301,13 @@ namespace Saro.Console
 
             // ---------------------------------------------
             // TEST
-            if (m_autoCompleteCache.Count == 0) return;
-            var sb = new StringBuilder();
-            foreach (var str in m_autoCompleteCache)
-            {
-                sb.Append(str).Append('\t');
-            }
-            UnityEngine.Debug.Log(sb.ToString());
+            //if (m_autoCompleteCache.Count == 0) return;
+            //var sb = new StringBuilder();
+            //foreach (var str in m_autoCompleteCache)
+            //{
+            //    sb.Append(str).Append('\t');
+            //}
+            //UnityEngine.Debug.Log(sb.ToString());
             // ---------------------------------------------
         }
 

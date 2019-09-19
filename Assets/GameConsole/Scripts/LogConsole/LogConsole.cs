@@ -29,7 +29,7 @@ namespace Saro.Console
         private const string Key_IsErrorLogEnable = "ErrorLogEnable";
         private const string Key_IsCollapseEnable = "CollapseEnable";
 
-        private const float MinHeightLogWindow = 150f;
+        private const float MinHeightLogWindow = 120f;
         private const float MinWidthLogWindow = 250f;
 
         private float m_logWindowHeight;
@@ -331,7 +331,7 @@ namespace Saro.Console
 
             m_logWindow.OnViewportDimensionsChanged();
 
-            m_logWindow.SnapToBottom();
+            //m_logWindow.SnapToBottom();
         }
 
         #endregion
@@ -482,7 +482,7 @@ namespace Saro.Console
             return sb.ToString();
         }
 
-        [Command("saveLog", "Save the log file")]
+        [Command("save_log", "Save the log file")]
         public static void SaveLogFile()
         {
             var path = Path.Combine(Application.persistentDataPath, DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss") + ".txt");
@@ -512,10 +512,6 @@ namespace Saro.Console
                 {
                     m_logWindow.OnViewportDimensionsChanged();
                 }
-                else
-                {
-                    // TODO mini window
-                }
 
                 m_screenDimensionsChanged = false;
             }
@@ -529,7 +525,11 @@ namespace Saro.Console
             {
                 ShowLogWindow(m_isLogWindowVisible = !m_isLogWindowVisible);
             }
-#endif
+            else if (m_isLogWindowVisible && !m_commandInput.isFocused && Input.GetKeyDown(KeyCode.Tab))
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+                m_commandInput.Select();
+            }
 
             // command history
             if (m_isLogWindowVisible && m_commandInput.isFocused)
@@ -560,8 +560,8 @@ namespace Saro.Console
                         m_commandInput.caretPosition = m_commandInput.text.Length;
                     }
                 }
-
             }
+#endif
         }
 
         #endregion
@@ -651,7 +651,7 @@ namespace Saro.Console
                     ConsoleCommand.ExecuteCommand(text);
 
                     // snap to bottom
-                    m_logWindow.SnapToBottom();
+                    //m_logWindow.SnapToBottom();
                 }
 
                 return '\0';
