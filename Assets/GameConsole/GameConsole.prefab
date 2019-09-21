@@ -76,7 +76,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter command...
+  m_Text: Press Tab to start...
 --- !u!1 &572137269
 GameObject:
   m_ObjectHideFlags: 0
@@ -936,8 +936,6 @@ MonoBehaviour:
   MaxWidthLogWindow: 0
   m_toggleKey: 96
   m_commandHistorySize: 15
-  m_logItemPrefab: {fileID: 7698846594602824095, guid: 2c9d0654e4a26b6428d288e7095828cb,
-    type: 3}
   m_infoSprite: {fileID: 21300000, guid: 11a37fafa16586e44a3c591585cc1d61, type: 3}
   m_warningSprite: {fileID: 21300000, guid: e93e277a1eb31044e815df4521a1fd5a, type: 3}
   m_errorSprite: {fileID: 21300000, guid: 67f6703da6e886846aed6f7fb23e28d7, type: 3}
@@ -1955,6 +1953,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_scrollRect: {fileID: 5354562833690559387}
   m_canvasGroupAlpha: 0.75
+  m_logItemPrefab: {fileID: 7698846594602824095, guid: 2c9d0654e4a26b6428d288e7095828cb,
+    type: 3}
   m_logItemSelectedColor: {r: 0.17254902, g: 0.3647059, b: 0.5294118, a: 1}
   m_logItemNormalColor1: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
   m_logItemNormalColor2: {r: 0.24705884, g: 0.24705884, b: 0.24705884, a: 1}
@@ -3021,7 +3021,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -117.4, y: 0}
+  m_AnchoredPosition: {x: -117.3999, y: 0}
   m_SizeDelta: {x: 30, y: 14}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5354562835574466479

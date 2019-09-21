@@ -11,8 +11,8 @@ namespace Saro.Console
      *  Warning :
      *  Don't support command overload !
      *  One command string only bind one command !
-     *  
-     *  example : 
+     *
+     *  example :
      *  int                 - Command 1
      *  float               - Command 1.1
      *  bool                - Command false/False
@@ -103,6 +103,7 @@ namespace Saro.Console
                 {typeof(bool), (string i,  out object o) => {var res = bool.TryParse(i,out bool v); o = v; return res; } },
                 {typeof(UnityEngine.Vector2), ParseVector2 },
                 {typeof(UnityEngine.Vector3), ParseVector3 },
+                {typeof(UnityEngine.Vector4), ParseVector4 },
                 {typeof(UnityEngine.GameObject), ParseGameobject },
             };
 
@@ -142,7 +143,7 @@ namespace Saro.Console
         {
             // parse command
             // [0] is command
-            // other is parameter 
+            // other is parameter
             var args = ParseCommandLine(commandLine);
             if (args.Count <= 0)
             {
@@ -252,7 +253,7 @@ namespace Saro.Console
 
             // parse method info
             var sb = new StringBuilder(512);
-            sb.Append("-").AppendFormat("<color=red>{0}</color>",command).Append(" : ");
+            sb.Append("-").AppendFormat("<color=red>{0}</color>", command).Append(" : ");
 
             if (!string.IsNullOrEmpty(description)) sb.Append(description).Append(" -> ");
 
@@ -274,7 +275,7 @@ namespace Saro.Console
         #endregion
 
 
-        #region // TODO  AutoComplete 
+        #region // TODO  AutoComplete
 
         public static string AutoComplete()
         {
@@ -286,7 +287,10 @@ namespace Saro.Console
 
         public static void GetPossibleCommand(string header)
         {
-            if (string.IsNullOrEmpty(header)) return;
+            if (string.IsNullOrEmpty(header))
+            {
+                throw new Exception("Header coundn't be Null or Empty");
+            }
 
             m_idxOfCommandCache = -1;
             m_autoCompleteCache.Clear();
@@ -357,7 +361,7 @@ namespace Saro.Console
                 var tmpY = xy[1].Trim();
                 if (!string.IsNullOrEmpty(tmpY))
                 {
-                    float.TryParse(tmpX, out y);
+                    float.TryParse(tmpY, out y);
                 }
 
                 output = new UnityEngine.Vector2(x, y);
@@ -392,13 +396,13 @@ namespace Saro.Console
                 var tmpY = xyz[1].Trim();
                 if (!string.IsNullOrEmpty(tmpY))
                 {
-                    float.TryParse(tmpX, out y);
+                    float.TryParse(tmpY, out y);
                 }
 
                 var tmpZ = xyz[2].Trim();
                 if (!string.IsNullOrEmpty(tmpZ))
                 {
-                    float.TryParse(tmpX, out z);
+                    float.TryParse(tmpZ, out z);
                 }
 
                 output = new UnityEngine.Vector3(x, y, z);
@@ -406,6 +410,51 @@ namespace Saro.Console
             }
 
             output = new UnityEngine.Vector3();
+            return false;
+        }
+
+        private static bool ParseVector4(string input, out object output)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                output = new UnityEngine.Vector4();
+                return false;
+            }
+
+            var xyz = input.Replace('(', ' ').Replace(')', ' ').Split(',');
+            float x = 0, y = 0, z = 0, w = 0;
+
+            if (xyz.Length >= 4)
+            {
+                var tmpX = xyz[0].Trim();
+                if (!string.IsNullOrEmpty(tmpX))
+                {
+                    float.TryParse(tmpX, out x);
+                }
+
+                var tmpY = xyz[1].Trim();
+                if (!string.IsNullOrEmpty(tmpY))
+                {
+                    float.TryParse(tmpY, out y);
+                }
+
+                var tmpZ = xyz[2].Trim();
+                if (!string.IsNullOrEmpty(tmpZ))
+                {
+                    float.TryParse(tmpZ, out z);
+                }
+
+                var tmpW = xyz[3].Trim();
+                if (!string.IsNullOrEmpty(tmpW))
+                {
+                    float.TryParse(tmpW, out w);
+                }
+
+                output = new UnityEngine.Vector4(x, y, z, w);
+                return true;
+            }
+
+            output = new UnityEngine.Vector4();
             return false;
         }
 

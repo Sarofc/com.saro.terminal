@@ -48,7 +48,6 @@ namespace Saro.Console
         [SerializeField] private int m_commandHistorySize = 15;
 
         [Header("Views")]
-        [SerializeField] private LogItem m_logItemPrefab;
         [SerializeField] private Sprite m_infoSprite;
         [SerializeField] private Sprite m_warningSprite;
         [SerializeField] private Sprite m_errorSprite;
@@ -87,9 +86,8 @@ namespace Saro.Console
         private LogIndicesList m_logEntryIndicesToShow;                     //需要显示的LogEntry的Index
 
         private Queue<QueuedLogEntry> m_queueLogs;
-        private Stack<LogItem> m_logItemPool;
 
-        private CommandHistory<string> m_commandHistory;                    // 历史命令
+        private LoopArray<string> m_commandHistory;                    // 历史命令
         private int m_commandIdx = -1;
 
         #endregion
@@ -125,9 +123,8 @@ namespace Saro.Console
             m_uncollapsedLogEntryIndices = new LogIndicesList(64);
             m_logEntryIndicesToShow = new LogIndicesList(64);
 
-            m_logItemPool = new Stack<LogItem>(4);
             m_queueLogs = new Queue<QueuedLogEntry>(64);
-            m_commandHistory = new CommandHistory<string>(m_commandHistorySize);
+            m_commandHistory = new LoopArray<string>(m_commandHistorySize);
 
             m_logSpriteLookup = new Dictionary<LogType, Sprite>(5)
             {
@@ -159,7 +156,7 @@ namespace Saro.Console
         {
             // init log window
             m_selfRectTransform = transform as RectTransform;
-            m_logWindow.Init(m_collapsedLogEntries, m_logEntryIndicesToShow, m_logItemPrefab.RectTransform.sizeDelta.y);
+            m_logWindow.Init(m_collapsedLogEntries, m_logEntryIndicesToShow);
             m_logWindow.SetCollapseMode(m_isCollapsed);
             m_logWindow.UpdateItemsInTheList(true);
 
@@ -181,11 +178,6 @@ namespace Saro.Console
         {
             Application.logMessageReceived += ReceivedLog;
 
-            if (m_logWindow)
-            {
-                m_logWindow.OnPoolLogItem += PoolLogItem;
-                m_logWindow.OnPopLogItem += PopLogItem;
-            }
             if (m_miniWindow)
             {
                 m_miniWindow.OnClick += MiniWindowClick;
@@ -247,12 +239,6 @@ namespace Saro.Console
 
             Application.logMessageReceived -= ReceivedLog;
 
-            if (m_logWindow)
-            {
-                m_logWindow.OnPoolLogItem -= PoolLogItem;
-                m_logWindow.OnPopLogItem -= PopLogItem;
-            }
-
             if (m_miniWindow)
             {
                 m_miniWindow.OnClick -= MiniWindowClick;
@@ -300,17 +286,15 @@ namespace Saro.Console
                 m_logWindow.UpdateInfoCountText(m_infoCount);
                 m_logWindow.UpdateWarningCountText(m_warningCount);
                 m_logWindow.UpdateErrorCountText(m_errorCount);
-
-                // focus on inputfield
-                m_commandInput.Select();
             }
             else
             {
                 m_logWindow.Hide();
                 m_miniWindow.Show();
 
-                // deselect inputfield
+                // reset inputfield
                 m_commandInput.text = "";
+                m_commandIdx = m_commandHistory.Length;
                 EventSystem.current.SetSelectedGameObject(null);
             }
 
@@ -535,7 +519,7 @@ namespace Saro.Console
             if (m_isLogWindowVisible && m_commandInput.isFocused)
             {
 
-                if (m_commandHistory.Count == 0) return;
+                if (m_commandHistory.Length == 0) return;
 
                 if (Input.GetKeyDown(KeyCode.UpArrow))
                 {
@@ -549,10 +533,10 @@ namespace Saro.Console
                 }
                 else if (Input.GetKeyDown(KeyCode.DownArrow))
                 {
-                    if (++m_commandIdx >= m_commandHistory.Count)
+                    if (++m_commandIdx >= m_commandHistory.Length)
                     {
                         m_commandInput.text = "";
-                        m_commandIdx = m_commandHistory.Count;
+                        m_commandIdx = m_commandHistory.Length;
                     }
                     else
                     {
@@ -568,30 +552,7 @@ namespace Saro.Console
 
         #region Callback
 
-        //--------------------------------------------
-        // log window
-        //--------------------------------------------
-        private void PoolLogItem(LogItem logItem)
-        {
-            logItem.gameObject.SetActive(false);
-            m_logItemPool.Push(logItem);
-        }
 
-        private LogItem PopLogItem(RectTransform parent)
-        {
-            LogItem newInstance;
-            if (m_logItemPool.Count > 0)
-            {
-                newInstance = m_logItemPool.Pop();
-                newInstance.gameObject.SetActive(true);
-            }
-            else
-            {
-                // create log item at scrollrect content
-                newInstance = GameObject.Instantiate(m_logItemPrefab, parent, false);
-            }
-            return newInstance;
-        }
 
         //--------------------------------------------
         // mini window
@@ -635,23 +596,16 @@ namespace Saro.Console
             else if (addedChar == '\n')
             {
                 m_commandInput.onValidateInput -= OnValidateCommand;
-                m_commandInput.onValueChanged.RemoveListener(OnChangedCommand);
-
                 m_commandInput.text = "";
-
                 m_commandInput.onValidateInput += OnValidateCommand;
-                m_commandInput.onValueChanged.AddListener(OnChangedCommand);
 
                 if (text.Length > 0)
                 {
                     m_commandHistory.AddTail(text);
-                    m_commandIdx = m_commandHistory.Count;
+                    m_commandIdx = m_commandHistory.Length;
 
                     // Execute command
                     ConsoleCommand.ExecuteCommand(text);
-
-                    // snap to bottom
-                    //m_logWindow.SnapToBottom();
                 }
 
                 return '\0';
@@ -671,9 +625,9 @@ namespace Saro.Console
 
         private void OnChangedCommand(string newString)
         {
+            if (string.IsNullOrEmpty(newString)) return;
             ConsoleCommand.GetPossibleCommand(newString);
         }
-
 
         private void OnCloseClick()
         {

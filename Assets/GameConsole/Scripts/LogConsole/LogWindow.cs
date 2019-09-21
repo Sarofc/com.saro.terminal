@@ -15,7 +15,8 @@ namespace Saro.Console
         [SerializeField, Range(0, 1)] private float m_canvasGroupAlpha = .8f;
         private CanvasGroup m_canvasGroup;
 
-        // log item color
+        // log item prefab and color
+        [SerializeField] private LogItem m_logItemPrefab;
         [SerializeField] private Color m_logItemSelectedColor;
         [SerializeField] private Color m_logItemNormalColor1;
         [SerializeField] private Color m_logItemNormalColor2;
@@ -28,10 +29,6 @@ namespace Saro.Console
         [SerializeField] private TMP_Text m_errorEntryCountText;
         //[SerializeField] private Text m_errorEntryCountText;
 
-
-        public event Action<LogItem> OnPoolLogItem;
-        public event Func<RectTransform, LogItem> OnPopLogItem;
-
         private float m_viewportHeight;
         private float m_itemHeight;
         private float m_itemHeightReciprocal;
@@ -41,6 +38,8 @@ namespace Saro.Console
         private LogIndicesList m_logEntryIndicesToShow = null;
         private Dictionary<int, LogItem> m_logItemsLookup = null;//根据index（LogEntryIndicesToShow），获取LogItem
 
+        private Stack<LogItem> m_logItemPool;
+
         private bool m_isCollapsed = false;
         private int m_currentTopIdx = -1;
         private int m_currentBottomIdx = -1;
@@ -49,8 +48,11 @@ namespace Saro.Console
         private float m_positionOfSelectedLogEntry = -1;
         private float m_deltaHeightOfSelectedLogEntry;
 
-        public void Init(List<LogEntry> collapsedLogEntries, LogIndicesList logEntryIndicesToShow, float itemHeight)
+        public void Init(List<LogEntry> collapsedLogEntries, LogIndicesList logEntryIndicesToShow)
         {
+            m_logItemsLookup = new Dictionary<int, LogItem>(56);
+            m_logItemPool = new Stack<LogItem>(4);
+
             // get component and register event
             m_canvasGroup = GetComponent<CanvasGroup>();
             m_scrollRect.onValueChanged.AddListener(v => UpdateItemsInTheList(false));
@@ -58,12 +60,11 @@ namespace Saro.Console
             //
             m_collapsedLogEntries = collapsedLogEntries;
             m_logEntryIndicesToShow = logEntryIndicesToShow;
-            m_itemHeight = itemHeight;
 
+            m_itemHeight = m_logItemPrefab.RectTransform.sizeDelta.y;
             m_itemHeightReciprocal = 1 / m_itemHeight;
             m_viewportHeight = m_scrollRect.viewport.rect.height;
 
-            m_logItemsLookup = new Dictionary<int, LogItem>(56);
         }
 
         #region public
@@ -307,8 +308,6 @@ namespace Saro.Console
 
         #region private
 
-        
-
         private void HardResetItems()
         {
             if (m_currentTopIdx != -1)
@@ -343,13 +342,13 @@ namespace Saro.Console
             for (int i = start; i < end + 1; i++)
             {
                 m_logItemsLookup[i].OnClick -= OnSelectLogItem;
-                OnPoolLogItem?.Invoke(m_logItemsLookup[i]);
+                PoolLogItem(m_logItemsLookup[i]);
             }
         }
 
         private void CreateLogItemAtIdx(int idx)
         {
-            var logItem = OnPopLogItem?.Invoke(m_scrollRect.content);
+            var logItem = PopLogItem(m_scrollRect.content);
 
             var anchor = new Vector2(1f, -idx * m_itemHeight);
 
@@ -386,6 +385,28 @@ namespace Saro.Console
             {
                 logItem.Image.color = m_logItemNormalColor2;
             }
+        }
+
+        private void PoolLogItem(LogItem logItem)
+        {
+            logItem.gameObject.SetActive(false);
+            m_logItemPool.Push(logItem);
+        }
+
+        private LogItem PopLogItem(RectTransform parent)
+        {
+            LogItem newInstance;
+            if (m_logItemPool.Count > 0)
+            {
+                newInstance = m_logItemPool.Pop();
+                newInstance.gameObject.SetActive(true);
+            }
+            else
+            {
+                // create log item at scrollrect content
+                newInstance = GameObject.Instantiate(m_logItemPrefab, parent, false);
+            }
+            return newInstance;
         }
 
         #endregion
