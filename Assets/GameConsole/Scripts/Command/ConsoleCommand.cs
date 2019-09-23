@@ -17,7 +17,7 @@ namespace Saro.Console
      *  float               - Command 1.1
      *  bool                - Command false/False
      *  vector2             - Command (1,1)         // no ' '
-     *  vector3             - Command 1,1,1         // '(' ')' is not necessay
+     *  vector3             - Command 1,1,1         // '(' ')' is not necessary 
      *  string//gameobject  - Command actor
      */
     public static class ConsoleCommand
@@ -56,7 +56,6 @@ namespace Saro.Console
             public void Execute(object[] objects)
             {
                 method?.Invoke(instance, objects);
-                //return string.Format("Return : {0}", (ret == null ? "NULL" : ret.ToString()));
             }
 
             /// <summary>
@@ -105,6 +104,7 @@ namespace Saro.Console
                 {typeof(UnityEngine.Vector3), ParseVector3 },
                 {typeof(UnityEngine.Vector4), ParseVector4 },
                 {typeof(UnityEngine.GameObject), ParseGameobject },
+                // Add more types here
             };
 
             AddAllCommandStatic();
@@ -120,13 +120,14 @@ namespace Saro.Console
                 return;
             }
 
-            var methods = classType.GetMethods().Where(p => p.GetCustomAttributes(typeof(CommandAttribute)).Any());
+            var methods = classType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var method in methods)
             {
                 if (method != null)
                 {
                     var attribute = method.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
-                    InternalAddCommand(attribute.Command, attribute.Description, method, instance);
+                    if (attribute != null)
+                        InternalAddCommand(attribute.Command, attribute.Description, method, instance);
                 }
             }
         }
@@ -165,7 +166,7 @@ namespace Saro.Console
             {
                 if (!command.IsParamsCountMatch(args.Count))
                 {
-                    UnityEngine.Debug.LogErrorFormat("Parameters count mismatch, expected count : {0}. Type : {1}", command.ParamsTypes.Length, string.Join<object>(",", command.ParamsTypes));
+                    UnityEngine.Debug.LogErrorFormat("{0} : Parameters count mismatch, expected count : {1}. Type : {2}", commandStr, command.ParamsTypes.Length, string.Join<object>(",", command.ParamsTypes));
                     return;
                 }
 
@@ -186,7 +187,6 @@ namespace Saro.Console
                     args.Dequeue();
                 }
                 // call method
-                //UnityEngine.Debug.Log(command.Execute(paramters));
                 command.Execute(paramters);
             }
         }
@@ -202,19 +202,14 @@ namespace Saro.Console
 
         private static void AddCommandStatic(Type classType)
         {
-            var methods = classType.GetMethods().Where(p => p.GetCustomAttributes(typeof(CommandAttribute)).Any() && p.IsStatic);
+            var methods = classType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var method in methods)
             {
                 if (method != null)
                 {
-                    if (method.IsPublic == false)
-                    {
-                        UnityEngine.Debug.LogWarning("Static Method shouldn't be Non Public : " + method);
-                        return;
-                    }
-
                     var attribute = method.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
-                    InternalAddCommand(attribute.Command, attribute.Description, method, null);
+                    if (attribute != null)
+                        InternalAddCommand(attribute.Command, attribute.Description, method, null);
                 }
             }
         }
@@ -245,28 +240,28 @@ namespace Saro.Console
                 }
                 else
                 {
-                    // command valid, return
+                    // command is not valid, return
                     UnityEngine.Debug.LogError("Unsupported type : " + type);
                     return;
                 }
             }
 
             // parse method info
-            var sb = new StringBuilder(512);
+            var sb = new StringBuilder(128);
             sb.Append("-").AppendFormat("<color=red>{0}</color>", command).Append(" : ");
 
             if (!string.IsNullOrEmpty(description)) sb.Append(description).Append(" -> ");
 
-            sb.Append(methodInfo.DeclaringType.ToString()).Append(".").Append(methodInfo.Name).Append("(");
+            sb.Append(methodInfo.DeclaringType.ToString()).Append(".").AppendFormat("<color=yellow>{0}(</color>", methodInfo.Name);
 
             for (int i = 0; i < paramTypes.Length; i++)
             {
                 var type = paramTypes[i];
-                sb.Append(type.Name);
+                sb.AppendFormat("<color=yellow>{0}</color>", type.Name);
                 if (i < paramTypes.Length - 1) sb.Append(",");
             }
 
-            sb.Append(")").Append(" : ").Append(methodInfo.ReturnType.Name);
+            sb.Append("<color=yellow>)</color>").Append(" : ").Append(methodInfo.ReturnType.Name);
 
             // store to map
             m_commandLookup[command] = new Command(methodInfo, paramTypes, instance, sb.ToString()); ;
@@ -275,7 +270,7 @@ namespace Saro.Console
         #endregion
 
 
-        #region // TODO  AutoComplete
+        #region AutoComplete
 
         public static string AutoComplete()
         {
@@ -289,7 +284,7 @@ namespace Saro.Console
         {
             if (string.IsNullOrEmpty(header))
             {
-                throw new Exception("Header coundn't be Null or Empty");
+                throw new Exception("Header couldn't be Null or Empty");
             }
 
             m_idxOfCommandCache = -1;
@@ -469,7 +464,7 @@ namespace Saro.Console
 
 
         [Command("help", "Show all commands")]
-        public static void LogAllCommand()
+        private static void LogAllCommand()
         {
             var sb = new StringBuilder(128);
             foreach (var v in m_commandLookup.Values)

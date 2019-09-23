@@ -18,7 +18,9 @@
 1. 拷贝目录GameConsole到指定目录，并导入TMP_Pro。
 2. 将Prefab ：GameConsole，拖入到场景中即可，另外得添加一个EventSystem。
 
-    > 项目版本为2019.3b，可以直接参考示例场景
+    > 👉项目版本为2019.3b，可以直接参考示例场景
+
+    > 👉命令绑定查看[MonoTestCommand.cs](https://github.com/Sarofc/GameConsole-Unity/blob/master/Assets/Scene/MonoTestCommand.cs)
 
 > ## 参考
 

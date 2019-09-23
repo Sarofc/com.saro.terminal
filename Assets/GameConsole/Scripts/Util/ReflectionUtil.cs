@@ -15,18 +15,7 @@ namespace Saro.Util
             {
                 if (m_AllAssemblyTypes == null)
                 {
-                    m_AllAssemblyTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(
-                        t => {
-                            try
-                            {
-                                return t.GetTypes();
-                            }
-                            catch
-                            {
-                                return new Type[0];
-                            }
-                        }
-                    );
+                    m_AllAssemblyTypes = Assembly.Load("Assembly-CSharp").GetTypes();
                 }
                 return m_AllAssemblyTypes;
             }

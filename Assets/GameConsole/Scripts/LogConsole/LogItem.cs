@@ -12,25 +12,32 @@ namespace Saro.Console
 {
     public class LogItem : MonoBehaviour, IPointerClickHandler
     {
-        public RectTransform RectTransform { get => m_rectTransform; }
-        public Image Image { get => m_image; }
+        public RectTransform RectTransform => m_selfRectTransform;
+        private RectTransform m_selfRectTransform;
+
+        public Image Image => m_image;
+        private Image m_image;//self bg
+
+        public int EntryIdx { get; private set; }
 
         public Action<LogItem> OnClick;
 
-        [SerializeField] private RectTransform m_rectTransform;
-        [SerializeField] private Image m_image;
 
-        //[SerializeField] private TMP_Text m_logText;
         [SerializeField] private Text m_logText;
         [SerializeField] private Image m_logTypeImage; // error ? warning ? normal ?
 
-        [SerializeField] private GameObject m_logCountParrent;
         [SerializeField] private TMP_Text m_logCountText;
-        //[SerializeField] private Text m_logCountText;
+        private GameObject m_logCountTextParent;
 
-        public int EntryIdx { get; private set; }
+
         private LogEntry m_logEntry;
 
+        private void Awake()
+        {
+            if (!m_selfRectTransform) m_selfRectTransform = transform as RectTransform;
+            if (!m_image) m_image = GetComponent<Image>();
+            if (m_logCountText) m_logCountTextParent = m_logCountText.transform.parent.gameObject;
+        }
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -49,22 +56,18 @@ namespace Saro.Console
             m_logEntry = logEntry;
             EntryIdx = entryIdx;
 
-            //var size = RectTransform.sizeDelta;
             if (isExpanded)
             {
                 //m_logText.overflowMode = TextOverflowModes.Overflow;
                 m_logText.horizontalOverflow = HorizontalWrapMode.Wrap;
-                //size.y = selectedHeight;
                 Resize(selectedHeight);
             }
             else
             {
                 //m_logText.overflowMode = TextOverflowModes.Ellipsis;
                 m_logText.horizontalOverflow = HorizontalWrapMode.Overflow;
-                //size.y = normalHeight;
                 Resize(normalHeight);
             }
-            //RectTransform.sizeDelta = size;
 
             m_logText.text = isExpanded ? logEntry.ToString() : logEntry.logString;
             m_logTypeImage.sprite = logEntry.typeSprite;
@@ -80,14 +83,15 @@ namespace Saro.Console
         public void ShowCount()
         {
             m_logCountText.text = m_logEntry.count.ToString();
-            m_logCountParrent.SetActive(true);
+            m_logCountTextParent.SetActive(true);
         }
 
         public void HideCount()
         {
-            m_logCountParrent.SetActive(false);
+            m_logCountTextParent.SetActive(false);
         }
 
+        // Calculate selected logitem height
         public float CalculateExpandedHeight(string content, float itemHeight)
         {
             string text = m_logText.text;

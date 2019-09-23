@@ -16,7 +16,6 @@ namespace Saro.Console
     {
         public static LogConsole Instance => m_instance;
 
-
         private static LogConsole m_instance = null;
 
         #region Options
@@ -68,7 +67,6 @@ namespace Saro.Console
         [SerializeField] private Button m_filterWarningBtn;
         [SerializeField] private Button m_filterErrorBtn;
         [Space()]
-        //[SerializeField] private TMP_InputField m_commandInput;
         [SerializeField] private InputField m_commandInput;
 
 
@@ -87,7 +85,7 @@ namespace Saro.Console
 
         private Queue<QueuedLogEntry> m_queueLogs;
 
-        private LoopArray<string> m_commandHistory;                    // 历史命令
+        private LoopArray<string> m_commandHistory;                         // 历史命令
         private int m_commandIdx = -1;
 
         #endregion
@@ -205,7 +203,7 @@ namespace Saro.Console
             {
                 if (s == UnityEditor.PlayModeStateChange.ExitingPlayMode)
                 {
-                    print("exite playmode");
+                    print("exit playmode");
 
                     PlayerPrefs.SetFloat(Key_LogWindowHeight, m_logWindowHeight);
                     PlayerPrefs.SetFloat(Key_LogWindowWidth, m_logWindowWidth);
@@ -219,7 +217,7 @@ namespace Saro.Console
 #else
              Application.quitting += () =>
             {
-                print("exite game");
+                print("exit game");
 
                 PlayerPrefs.SetFloat(Key_LogWindowHeight, m_logWindowHeight);
                 PlayerPrefs.SetFloat(Key_LogWindowWidth, m_logWindowWidth);
@@ -518,7 +516,6 @@ namespace Saro.Console
             // command history
             if (m_isLogWindowVisible && m_commandInput.isFocused)
             {
-
                 if (m_commandHistory.Length == 0) return;
 
                 if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -568,8 +565,6 @@ namespace Saro.Console
         //--------------------------------------------
         private char OnValidateCommand(string text, int charIndex, char addedChar)
         {
-            //UnityEngine.Debug.Log(text + " " + charIndex + " " + addedChar);
-
             // autocomplete
             // tab
             if (addedChar == '\t')

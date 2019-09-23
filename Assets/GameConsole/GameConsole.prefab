@@ -1491,7 +1491,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5354562834053953017}
   m_Enabled: 1
-  m_Alpha: 0.8
+  m_Alpha: 0.7
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -1951,8 +1951,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb1fddddc86a12648b7b149e1ca09db8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_canvasGroupAlpha: 0.7
   m_scrollRect: {fileID: 5354562833690559387}
-  m_canvasGroupAlpha: 0.75
   m_logItemPrefab: {fileID: 7698846594602824095, guid: 2c9d0654e4a26b6428d288e7095828cb,
     type: 3}
   m_logItemSelectedColor: {r: 0.17254902, g: 0.3647059, b: 0.5294118, a: 1}

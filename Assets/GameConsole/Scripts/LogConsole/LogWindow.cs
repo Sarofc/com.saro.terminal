@@ -11,8 +11,8 @@ namespace Saro.Console
 {
     public class LogWindow : MonoBehaviour
     {
-        [SerializeField] private ScrollRect m_scrollRect;
         [SerializeField, Range(0, 1)] private float m_canvasGroupAlpha = .8f;
+        [SerializeField] private ScrollRect m_scrollRect;
         private CanvasGroup m_canvasGroup;
 
         // log item prefab and color
@@ -22,12 +22,10 @@ namespace Saro.Console
         [SerializeField] private Color m_logItemNormalColor2;
 
         [Space()]
+        // log count text
         [SerializeField] private TMP_Text m_infoEntryCountText;
-        //[SerializeField] private Text m_infoEntryCountText;
         [SerializeField] private TMP_Text m_warningEntryCountText;
-        //[SerializeField] private Text m_warningEntryCountText;
         [SerializeField] private TMP_Text m_errorEntryCountText;
-        //[SerializeField] private Text m_errorEntryCountText;
 
         private float m_viewportHeight;
         private float m_itemHeight;
@@ -39,6 +37,7 @@ namespace Saro.Console
         private Dictionary<int, LogItem> m_logItemsLookup = null;//根据index（LogEntryIndicesToShow），获取LogItem
 
         private Stack<LogItem> m_logItemPool;
+        private int m_initPoolCount = 16;
 
         private bool m_isCollapsed = false;
         private int m_currentTopIdx = -1;
@@ -50,21 +49,26 @@ namespace Saro.Console
 
         public void Init(List<LogEntry> collapsedLogEntries, LogIndicesList logEntryIndicesToShow)
         {
-            m_logItemsLookup = new Dictionary<int, LogItem>(56);
-            m_logItemPool = new Stack<LogItem>(4);
-
             // get component and register event
             m_canvasGroup = GetComponent<CanvasGroup>();
             m_scrollRect.onValueChanged.AddListener(v => UpdateItemsInTheList(false));
 
-            //
+            m_logItemsLookup = new Dictionary<int, LogItem>(56);
+            m_logItemPool = new Stack<LogItem>(m_initPoolCount);
+            
+            for (int i = 0; i < m_initPoolCount; i++)
+            {
+                var go = GameObject.Instantiate(m_logItemPrefab, m_scrollRect.content, false);
+                go.gameObject.SetActive(false);
+                m_logItemPool.Push(go);
+            }
+
             m_collapsedLogEntries = collapsedLogEntries;
             m_logEntryIndicesToShow = logEntryIndicesToShow;
-
-            m_itemHeight = m_logItemPrefab.RectTransform.sizeDelta.y;
+            
+            m_itemHeight = m_logItemPool.Peek().RectTransform.sizeDelta.y;
             m_itemHeightReciprocal = 1 / m_itemHeight;
             m_viewportHeight = m_scrollRect.viewport.rect.height;
-
         }
 
         #region public
@@ -127,7 +131,6 @@ namespace Saro.Console
 
         public void OnDeselectLogItem()
         {
-            //int prevSelectedIdx = m_idxOfSelectedLogEntry;
             m_idxOfSelectedLogEntry = -1;
             m_positionOfSelectedLogEntry = -1;
             m_selectedItemHeight = m_deltaHeightOfSelectedLogEntry = 0;
@@ -139,7 +142,6 @@ namespace Saro.Console
         public void UpdateLogEntries(bool updateAllVisibleItemContents)
         {
             CalculateContentHeight();
-            //m_viewportHeight = m_viewportRectTransfrom.rect.height;
             m_viewportHeight = m_scrollRect.viewport.rect.height;
 
             if (updateAllVisibleItemContents)
@@ -234,7 +236,7 @@ namespace Saro.Console
                         {
                             CreateLogItemsBetweenIndices(newTopIdx, m_currentTopIdx - 1);
 
-                            // if it's necessary to update all the log items
+                            // if it's not necessary to update all the log items
                             if (!updateAllVisibleItemContents)
                             {
                                 UpdateLogItemContentsBetweenIndices(newTopIdx, m_currentTopIdx - 1);
@@ -245,7 +247,7 @@ namespace Saro.Console
                         {
                             CreateLogItemsBetweenIndices(m_currentBottomIdx + 1, newBottomIdx);
 
-                            // if it's necessary to update all the log items
+                            // if it's not necessary to update all the log items
                             if (!updateAllVisibleItemContents)
                             {
                                 UpdateLogItemContentsBetweenIndices(m_currentBottomIdx + 1, newBottomIdx);
@@ -271,7 +273,6 @@ namespace Saro.Console
 
         public void OnViewportDimensionsChanged()
         {
-            //m_viewportHeight = m_viewportRectTransfrom.rect.height;
             m_viewportHeight = m_scrollRect.viewport.rect.height;
 
             if (m_idxOfSelectedLogEntry != -1)
