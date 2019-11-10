@@ -143,6 +143,10 @@ namespace Saro.Console
             m_isErrorEnabled = PlayerPrefs.GetInt(Key_IsErrorLogEnable, 1) == 1 ? true : false;
 
             // button state
+            m_resizeBtn.GetComponent<Image>().color = m_btnNormalColor;
+            m_closeBtn.image.color = m_btnNormalColor;
+            m_clearBtn.image.color = m_btnNormalColor;
+
             m_collapseBtn.image.color = m_isCollapsed ? m_btnSelectedColor : m_btnNormalColor;
 
             m_filterInfoBtn.image.color = m_isInfoEnabled ? m_btnSelectedColor : m_btnNormalColor;
