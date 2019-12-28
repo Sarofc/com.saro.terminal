@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -459,15 +459,10 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4733327506354355406, guid: 9e5b4de9c5da06a49985f516a613b953,
-        type: 3}
-      propertyPath: m_MatchWidthOrHeight
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4733327505458235069, guid: 9e5b4de9c5da06a49985f516a613b953,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000048820177
+      value: 0.00004005432
       objectReference: {fileID: 0}
     - target: {fileID: 4733327505844216268, guid: 9e5b4de9c5da06a49985f516a613b953,
         type: 3}
@@ -484,15 +479,25 @@ PrefabInstance:
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4733327506073382019, guid: 9e5b4de9c5da06a49985f516a613b953,
+    - target: {fileID: 4733327506457696997, guid: 9e5b4de9c5da06a49985f516a613b953,
         type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -120
+      propertyPath: m_VerticalScrollbarVisibility
+      value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 4733327506073382019, guid: 9e5b4de9c5da06a49985f516a613b953,
+    - target: {fileID: 4733327504886163632, guid: 9e5b4de9c5da06a49985f516a613b953,
         type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -68
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4733327504886163632, guid: 9e5b4de9c5da06a49985f516a613b953,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4733327504886163632, guid: 9e5b4de9c5da06a49985f516a613b953,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e5b4de9c5da06a49985f516a613b953, type: 3}
