@@ -4,7 +4,7 @@ namespace Saro.Console
 {
     /* 
      * simple list
-     * could be replace by Syste.Collections.List
+     * could be replaced by Syste.Collections.List
      */
     public class LogIndicesList
     {

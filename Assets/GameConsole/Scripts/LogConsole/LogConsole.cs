@@ -18,6 +18,8 @@ namespace Saro.Console
 
         private static LogConsole m_instance = null;
 
+        public const float Version = 0.01f;
+
         #region Options
 
         private const string Key_LogWindowHeight = "GameConsoleHeight";
@@ -79,9 +81,8 @@ namespace Saro.Console
 
         private List<LogEntry> m_collapsedLogEntries;                       //存LogEntry，不允许重复，每个LogEntry唯一
         private Dictionary<LogEntry, int> m_collapsedLogEntriesLookup;      //根据唯一LogEntry，获取其所在的index
-
-        private LogIndicesList m_uncollapsedLogEntryIndices;                //存所有LogEntry的index，相同的LogEntry的索引相等。
-        private LogIndicesList m_logEntryIndicesToShow;                     //需要显示的LogEntry的Index
+        private List<int> m_uncollapsedLogEntryIndices;                     //存所有LogEntry的index，相同的LogEntry的索引相等。
+        private List<int> m_logEntryIndicesToShow;                          //需要显示的LogEntry的Index
 
         private Queue<QueuedLogEntry> m_queueLogs;
 
@@ -118,8 +119,8 @@ namespace Saro.Console
             // init collections
             m_collapsedLogEntries = new List<LogEntry>(128);
             m_collapsedLogEntriesLookup = new Dictionary<LogEntry, int>(128);
-            m_uncollapsedLogEntryIndices = new LogIndicesList(64);
-            m_logEntryIndicesToShow = new LogIndicesList(64);
+            m_uncollapsedLogEntryIndices = new List<int>(64);
+            m_logEntryIndicesToShow = new List<int>(64);
 
             m_queueLogs = new Queue<QueuedLogEntry>(64);
             m_commandHistory = new LoopArray<string>(m_commandHistorySize);
@@ -444,7 +445,7 @@ namespace Saro.Console
             m_logWindow.SnapToBottom();
         }
 
-        private string GetLog()
+        internal string GetLog()
         {
             // calculate log string length
             int strLength = 0;
@@ -468,14 +469,7 @@ namespace Saro.Console
             return sb.ToString();
         }
 
-        [Command("save_log", "Save the log file")]
-        public static void SaveLogFile()
-        {
-            var path = Path.Combine(Application.persistentDataPath, DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss") + ".txt");
-            File.WriteAllText(path, m_instance.GetLog());
 
-            Debug.Log("Save log file to : " + path);
-        }
 
         #endregion
 
@@ -505,7 +499,7 @@ namespace Saro.Console
 
         private void ProcessKey()
         {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_EDITOR
             // toggle log window
             if (Input.GetKeyDown(m_toggleKey))
             {

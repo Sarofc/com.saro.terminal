@@ -70,7 +70,7 @@ namespace Saro.Console
 
         private delegate bool TypeParse(string input, out object output);
 
-        private static Dictionary<string, Command> m_commandLookup = null;
+        private static SortedDictionary<string, Command> m_commandLookup = null;
 
         private static Dictionary<Type, TypeParse> m_typeLookup = null;
 
@@ -79,7 +79,7 @@ namespace Saro.Console
         private static List<string> m_autoCompleteCache = null;
         private static int m_idxOfCommandCache = -1;
 
-        private static readonly List<char> m_invalidChrsForCommandName = new List<char> { ' ', '-', '/', '\\', '\b', '\t', };
+        private static readonly List<char> m_invalidChrsForCommandName = new List<char> { ' ', /*'-',*/ '/', '\\', '\b', '\t', };
 
 #if UNIT_TEST
         /// <summary>
@@ -90,8 +90,8 @@ namespace Saro.Console
 
         static ConsoleCommand()
         {
-            m_commandLookup = new Dictionary<string, Command>(8);
-            m_args = new Queue<string>(3);
+            m_commandLookup = new SortedDictionary<string, Command>();
+            m_args = new Queue<string>(4);
             m_autoCompleteCache = new List<string>(8);
 
             m_typeLookup = new Dictionary<Type, TypeParse>()
@@ -125,7 +125,7 @@ namespace Saro.Console
             {
                 if (method != null)
                 {
-                    var attribute = method.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
+                    var attribute = method.GetCustomAttribute<CommandAttribute>();
                     if (attribute != null)
                         InternalAddCommand(attribute.Command, attribute.Description, method, instance);
                 }
@@ -207,7 +207,7 @@ namespace Saro.Console
             {
                 if (method != null)
                 {
-                    var attribute = method.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
+                    var attribute = method.GetCustomAttribute<CommandAttribute>();
                     if (attribute != null)
                         InternalAddCommand(attribute.Command, attribute.Description, method, null);
                 }
@@ -248,11 +248,12 @@ namespace Saro.Console
 
             // parse method info
             var sb = new StringBuilder(128);
-            sb.Append("-").AppendFormat("<color=red>{0}</color>", command).Append(" : ");
+            sb.AppendFormat("<color=red>{0}</color>", command).Append("\t - ");
 
-            if (!string.IsNullOrEmpty(description)) sb.Append(description).Append(" -> ");
+            if (!string.IsNullOrEmpty(description)) sb.Append(description).Append("\t -> ");
 
-            sb.Append(methodInfo.DeclaringType.ToString()).Append(".").AppendFormat("<color=yellow>{0}(</color>", methodInfo.Name);
+            sb//.Append(methodInfo.DeclaringType.ToString()).Append(".")
+              .AppendFormat("<color=yellow>{0}(</color>", methodInfo.Name);
 
             for (int i = 0; i < paramTypes.Length; i++)
             {
@@ -462,18 +463,17 @@ namespace Saro.Console
 
         #endregion
 
-
-        [Command("help", "Show all commands")]
-        private static void LogAllCommand()
+        internal static List<Command> GetAllCommands()
         {
-            var sb = new StringBuilder(128);
-            foreach (var v in m_commandLookup.Values)
-            {
-                sb.AppendLine(v.ToString());
-            }
-            UnityEngine.Debug.Log(sb.ToString());
+            return m_commandLookup.Values.ToList();
         }
 
+        internal static Command TryGetCommand(string commandStr)
+        {
+            if (m_commandLookup.TryGetValue(commandStr, out Command command))
+                return command;
 
+            return null;
+        }
     }
 }

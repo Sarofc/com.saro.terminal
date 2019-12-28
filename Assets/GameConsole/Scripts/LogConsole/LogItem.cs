@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -26,7 +25,7 @@ namespace Saro.Console
         [SerializeField] private Text m_logText;
         [SerializeField] private Image m_logTypeImage; // error ? warning ? normal ?
 
-        [SerializeField] private TMP_Text m_logCountText;
+        [SerializeField] private Text m_logCountText;
         private GameObject m_logCountTextParent;
 
 
@@ -69,7 +68,7 @@ namespace Saro.Console
                 Resize(normalHeight);
             }
 
-            m_logText.text = isExpanded ? logEntry.ToString() : logEntry.logString;
+            m_logText.text = logEntry.ToString(!isExpanded);//isExpanded ? logEntry.ToString(true) : logEntry.logString;
             m_logTypeImage.sprite = logEntry.typeSprite;
         }
 
@@ -82,7 +81,7 @@ namespace Saro.Console
 
         public void ShowCount()
         {
-            m_logCountText.text = m_logEntry.count.ToString();
+            m_logCountText.text = /*m_logEntry.dateTimes.Count.ToString();//*/m_logEntry.count.ToString();
             m_logCountTextParent.SetActive(true);
         }
 
@@ -113,7 +112,7 @@ namespace Saro.Console
 
         public override string ToString()
         {
-            return m_logEntry.ToString();
+            return m_logEntry.ToString(true);
         }
     }
 }

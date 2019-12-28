@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,9 +22,9 @@ namespace Saro.Console
 
         [Space()]
         // log count text
-        [SerializeField] private TMP_Text m_infoEntryCountText;
-        [SerializeField] private TMP_Text m_warningEntryCountText;
-        [SerializeField] private TMP_Text m_errorEntryCountText;
+        [SerializeField] private Text m_infoEntryCountText;
+        [SerializeField] private Text m_warningEntryCountText;
+        [SerializeField] private Text m_errorEntryCountText;
 
         private float m_viewportHeight;
         private float m_itemHeight;
@@ -33,7 +32,7 @@ namespace Saro.Console
         private float m_selectedItemHeight;
 
         private List<LogEntry> m_collapsedLogEntries = null;
-        private LogIndicesList m_logEntryIndicesToShow = null;
+        private List<int> m_logEntryIndicesToShow = null;
         private Dictionary<int, LogItem> m_logItemsLookup = null;//根据index（LogEntryIndicesToShow），获取LogItem
 
         private Stack<LogItem> m_logItemPool;
@@ -47,7 +46,7 @@ namespace Saro.Console
         private float m_positionOfSelectedLogEntry = -1;
         private float m_deltaHeightOfSelectedLogEntry;
 
-        public void Init(List<LogEntry> collapsedLogEntries, LogIndicesList logEntryIndicesToShow)
+        public void Init(List<LogEntry> collapsedLogEntries, List<int> logEntryIndicesToShow)
         {
             // get component and register event
             m_canvasGroup = GetComponent<CanvasGroup>();

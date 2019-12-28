@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Saro.Console
@@ -16,6 +13,8 @@ namespace Saro.Console
         public string stackTrace;
 
         public Sprite typeSprite;
+
+        //public List<string> dateTimes = new List<string>(); // TODO store DateTime
         public int count;
 
         private string m_completeLog = null;
@@ -52,14 +51,18 @@ namespace Saro.Console
             return m_hash;
         }
 
-        public override string ToString()
+        public string ToString(bool showStackTrace = false)
         {
             if (m_completeLog == null)
             {
 #if UNITY_EDITOR
                 m_completeLog = string.Concat(logString, "\n", stackTrace);
+                //m_completeLog = showStackTrace ?
+                //    string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString, "\n", stackTrace) :
+                //    string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString);
 #else
                 m_completeLog = logString;
+                //m_completeLog = string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString);
 #endif
 
             }

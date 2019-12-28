@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace Saro.Console
 {
     /*
+     *  ring buffer
+     * 
      *  Warning : 
      *  
      *  1. Can't expand capacity
