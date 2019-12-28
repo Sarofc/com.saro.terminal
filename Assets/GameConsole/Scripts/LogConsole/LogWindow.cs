@@ -10,6 +10,8 @@ namespace Saro.Console
 {
     public class LogWindow : MonoBehaviour
     {
+#pragma warning disable 649
+
         [SerializeField, Range(0, 1)] private float m_canvasGroupAlpha = .8f;
         [SerializeField] private ScrollRect m_scrollRect;
         private CanvasGroup m_canvasGroup;
@@ -25,6 +27,8 @@ namespace Saro.Console
         [SerializeField] private Text m_infoEntryCountText;
         [SerializeField] private Text m_warningEntryCountText;
         [SerializeField] private Text m_errorEntryCountText;
+
+#pragma warning disable 649
 
         private float m_viewportHeight;
         private float m_itemHeight;

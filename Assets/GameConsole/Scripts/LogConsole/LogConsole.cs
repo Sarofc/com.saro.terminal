@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -48,6 +43,8 @@ namespace Saro.Console
         [SerializeField] private KeyCode m_toggleKey = KeyCode.BackQuote;
         [SerializeField] private int m_commandHistorySize = 15;
 
+#pragma warning disable 649
+
         [Header("Views")]
         [SerializeField] private Sprite m_infoSprite;
         [SerializeField] private Sprite m_warningSprite;
@@ -74,6 +71,8 @@ namespace Saro.Console
 
         private RectTransform m_selfRectTransform;
         #endregion
+
+#pragma warning disable 649
 
         #region Collections
 

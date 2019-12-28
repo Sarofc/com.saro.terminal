@@ -21,13 +21,15 @@ namespace Saro.Console
 
         public Action<LogItem> OnClick;
 
+#pragma warning disable 649
 
         [SerializeField] private Text m_logText;
         [SerializeField] private Image m_logTypeImage; // error ? warning ? normal ?
-
         [SerializeField] private Text m_logCountText;
-        private GameObject m_logCountTextParent;
 
+#pragma warning disable 649
+
+        private GameObject m_logCountTextParent;
 
         private LogEntry m_logEntry;
 
