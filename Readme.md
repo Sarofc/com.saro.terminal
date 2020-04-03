@@ -14,16 +14,17 @@
 1. 拷贝目录DevConsole到指定目录。
 2. 将Prefab: DevConsole，拖入到场景。
 3. 确保有一个EventSystem。
+    > ❗ 2019以下的版本，会出现引用丢失。
 
-    > 👉项目版本为2019.4.7f1，可以直接参考示例场景
+    > 👉项目版本为2019.3.7f1，可以直接参考示例场景。
 
-    > 👉命令绑定查看[MonoTestCommand.cs](https://github.com/Sarofc/GameConsole-Unity/blob/master/Assets/Scene/MonoTestCommand.cs)
+    > 👉命令绑定查看[MonoTestCommand.cs](https://github.com/Sarofc/DevConsole-Unity/blob/master/Assets/Scenes/MonoTestCommand.cs)
 
 > ## 截图
 
-<img src="https://github.com/Sarofc/GameConsole-Unity/blob/master/src/GIF.gif?raw=true" width=60%>
+<img src="https://github.com/Sarofc/DevConsole-Unity/blob/master/src/GIF.gif?raw=true" width=60%>
 
-<img src="https://github.com/Sarofc/GameConsole-Unity/blob/master/src/GIF2.gif?raw=true" width=60%>
+<img src="https://github.com/Sarofc/DevConsole-Unity/blob/master/src/GIF2.gif?raw=true" width=60%>
 
 
 > ## 参考
