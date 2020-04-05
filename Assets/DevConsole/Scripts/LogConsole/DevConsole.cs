@@ -223,13 +223,13 @@ namespace Saro.Console
             {
                 // print("exit game");
 
-                PlayerPrefs.SetFloat(Key_LogWindowHeight, m_logWindowHeight);
-                PlayerPrefs.SetFloat(Key_LogWindowWidth, m_logWindowWidth);
+                PlayerPrefs.SetFloat(k_Key_LogWindowHeight, m_LogWindowHeight);
+                PlayerPrefs.SetFloat(k_Key_LogWindowWidth, m_LogWindowWidth);
 
-                PlayerPrefs.SetInt(Key_IsCollapseEnable, m_isCollapsed ? 1 : 0);
-                PlayerPrefs.SetInt(Key_IsInfoLogEnable, m_isInfoEnabled ? 1 : 0);
-                PlayerPrefs.SetInt(Key_IsWarningLogEnable, m_isWarningEnabled ? 1 : 0);
-                PlayerPrefs.SetInt(Key_IsErrorLogEnable, m_isErrorEnabled ? 1 : 0);
+                PlayerPrefs.SetInt(k_Key_IsCollapseEnable, m_IsCollapsed ? 1 : 0);
+                PlayerPrefs.SetInt(k_Key_IsInfoLogEnable, m_IsInfoEnabled ? 1 : 0);
+                PlayerPrefs.SetInt(k_Key_IsWarningLogEnable, m_IsWarningEnabled ? 1 : 0);
+                PlayerPrefs.SetInt(k_Key_IsErrorLogEnable, m_IsErrorEnabled ? 1 : 0);
             };
 #endif
             // TODO log andriod

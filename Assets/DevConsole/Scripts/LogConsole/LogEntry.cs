@@ -60,8 +60,8 @@ namespace Saro.Console
                 //    string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString, "\n", stackTrace) :
                 //    string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString);
 #else
-                m_completeLog = logString;
-                //m_completeLog = string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString);
+                m_CompleteLog = logString;
+                //m_CompleteLog = string.Concat("[", dateTimes[dateTimes.Count - 1], "] ", logString);
 #endif
 
             }
