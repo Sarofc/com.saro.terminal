@@ -1,0 +1,15 @@
+{
+    "name": "Terminal.Editor",
+    "references": [
+        "GUID:dbdaefc3ac17a37429a94d14041921ef"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
