@@ -1,15 +1,38 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class MonoTestCommand : MonoBehaviour
 {
-    void Start()
+    IEnumerator Start()
     {
         Saro.Terminal.Terminal.Shell.AddCommandInstance(typeof(MonoTestCommand), this);
 
         Debug.Log("<color=green>log info</color>");
         Debug.LogWarning("<color=yellow>log warning</color>");
         Debug.LogError("<color=red>log error</color>");
+
+        var thread = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadLog));
+        thread.IsBackground = true;
+        thread.Start();
+
+        var sec = new WaitForSeconds(0.5f);
+        for (int i = 0; i < 50; i++)
+        {
+            Saro.Terminal.Terminal.Log("[main thread] tick");
+            yield return sec;
+        }
+    }
+
+    private void ThreadLog()
+    {
+        var count = 5;
+        while (count > 0)
+        {
+            count--;
+            Saro.Terminal.Terminal.Log("[worker thread] tick");
+            System.Threading.Thread.Sleep(500);
+        }
     }
 
     // instance method

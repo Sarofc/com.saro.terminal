@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Saro.Terminal
+namespace Saro.Terminal.View.EditorStyle
 {
     public class LogItem : MonoBehaviour, IPointerClickHandler
     {
@@ -22,12 +22,13 @@ namespace Saro.Terminal
         [SerializeField] private Text m_LogText;
         [SerializeField] private Image m_LogTypeImage; // error ? warning ? normal ?
         [SerializeField] private Text m_LogCountText;
+        [SerializeField] private Image m_LogCountBg;
 
 #pragma warning disable 649
 
         private GameObject m_LogCountTextParent;
 
-        private Terminal.LogEntry m_LogEntry;
+        private Console.LogEntry m_LogEntry;
 
         private void Awake()
         {
@@ -38,17 +39,17 @@ namespace Saro.Terminal
 
         public void OnPointerClick(PointerEventData eventData)
         {
-#if UNITY_EDITOR
             if (eventData.button == PointerEventData.InputButton.Right)
             {
                 m_LogEntry.TraceScript();
             }
             else
-#endif
+            {
                 OnClick?.Invoke(this);
+            }
         }
 
-        public void SetContent(Terminal.LogEntry logEntry, int entryIdx, bool isExpanded, float selectedHeight, float normalHeight)
+        public void SetContent(Console.LogEntry logEntry, int entryIdx, bool isExpanded, float selectedHeight, float normalHeight)
         {
             m_LogEntry = logEntry;
             EntryIdx = entryIdx;
@@ -81,6 +82,10 @@ namespace Saro.Terminal
         {
             m_LogCountText.text = /*m_logEntry.dateTimes.Count.ToString();//*/m_LogEntry.count.ToString();
             m_LogCountTextParent.SetActive(true);
+            float width = m_LogCountText.preferredWidth;
+            var sizeDelta = m_LogCountBg.rectTransform.sizeDelta;
+            sizeDelta.x = width + 4;
+            m_LogCountBg.rectTransform.sizeDelta = sizeDelta;
         }
 
         public void HideCount()
@@ -95,7 +100,7 @@ namespace Saro.Terminal
             //var mode = m_logText.overflowMode;
             HorizontalWrapMode wapMode = m_LogText.horizontalOverflow;
             //TextAnchor alignment = m_LogText.alignment;
-            
+
             m_LogText.text = content;
 
             //m_logText.overflowMode = TextOverflowModes.Overflow;

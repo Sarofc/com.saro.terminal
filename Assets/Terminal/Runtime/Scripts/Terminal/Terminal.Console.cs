@@ -4,13 +4,17 @@ using System.Collections.Generic;
 
 namespace Saro.Terminal
 {
+    // BUG
+    // fix 右上角日志计数问题。在console类里处理计数解决。
+    // fix clearlog ui刷新问题,第一个item没有刷新。clear时抛事件刷新解决。
+    // fix 初始化filter没生效。延迟一帧解决
+
     // TODO 
-    // 设置持久化
     // 时间戳
 
-    public partial class Terminal
+    public class Console
     {
-        #region Console
+        private const string k_Terminal_Console_LogFlag = "terminal_console_logflag";
 
         /// <summary>
         /// 日志条目
@@ -21,20 +25,32 @@ namespace Saro.Terminal
             private int m_Hash;
 
             public string logString;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             public string stackTrace;
+#endif
             public UnityEngine.LogType logType;
 
             public int count;
 
-            private static Stack<LogEntry> m_Pool = new Stack<LogEntry>();
+            private static Stack<LogEntry> s_Pool = new Stack<LogEntry>();
+            private static readonly object s_PoolLock = new object();
 
             public static LogEntry Create(string logString, string stackTrace, UnityEngine.LogType logType)
             {
-                if (m_Pool.Count > 0)
+                if (s_Pool.Count > 0)
                 {
-                    var entry = m_Pool.Pop();
+                    LogEntry entry = null;
+                    lock (s_PoolLock)
+                    {
+                        entry = s_Pool.Pop();
+                    }
                     entry.logString = logString;
-                    entry.stackTrace = stackTrace;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    entry.stackTrace = stackTrace.Length > 0 ? stackTrace.Remove(stackTrace.Length - 1, 1) : stackTrace;
+#endif
+
                     entry.logType = logType;
                     entry.count = 1;
 
@@ -50,22 +66,34 @@ namespace Saro.Terminal
             {
                 if (entry == null)
                 {
-                    LogError("entry is null. can't release.");
+                    Terminal.LogError("entry is null. can't release.");
                     return;
                 }
 
                 entry.logString = null;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 entry.stackTrace = null;
+#endif
+
                 entry.logType = 0;
 
                 entry.m_Hash = k_HASH_NOT_CALCULATED;
                 entry.count = 1;
+
+                lock (s_PoolLock)
+                {
+                    s_Pool.Push(entry);
+                }
             }
 
             private LogEntry(string logString, string stackTrace, UnityEngine.LogType logType)
             {
                 this.logString = logString;
-                this.stackTrace = stackTrace.Remove(stackTrace.Length - 1, 1);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                this.stackTrace = stackTrace.Length > 0 ? stackTrace.Remove(stackTrace.Length - 1, 1) : stackTrace;
+#endif
                 this.logType = logType;
 
                 this.count = 1;
@@ -75,7 +103,7 @@ namespace Saro.Terminal
 
             public override string ToString()
             {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 return logString + "\n" + stackTrace;
 #else
                 return logString;
@@ -84,8 +112,7 @@ namespace Saro.Terminal
 
             public string ToString(bool full)
             {
-#if UNITY_EDITOR
-
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                 if (full)
                     return logString + "\n" + stackTrace;
                 else
@@ -96,6 +123,7 @@ namespace Saro.Terminal
             [System.Diagnostics.Conditional("UNITY_EDITOR")]
             public void TraceScript()
             {
+#if UNITY_EDITOR
                 var regex = System.Text.RegularExpressions.Regex.Match(stackTrace, @"\(at .*\.cs:[0-9]+\)$", System.Text.RegularExpressions.RegexOptions.Multiline);
                 if (regex.Success)
                 {
@@ -108,12 +136,16 @@ namespace Saro.Terminal
                         UnityEditor.AssetDatabase.OpenAsset(script, int.Parse(line.Substring(lineSeparator + 1)));
                     }
                 }
+#endif
             }
 
             public bool Equals(LogEntry other)
             {
-                return logString == other.logString &&
-                    stackTrace == other.stackTrace;
+                return logString == other.logString
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    && stackTrace == other.stackTrace
+#endif
+                    ;
             }
 
             // Ovirride hash function to use this as Key for Dictionary
@@ -126,18 +158,19 @@ namespace Saro.Terminal
                     {
                         m_Hash = 17;
                         m_Hash = m_Hash * m_Hash * 23 + logString == null ? 0 : logString.GetHashCode();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
                         m_Hash = m_Hash * m_Hash * 23 + stackTrace == null ? 0 : stackTrace.GetHashCode();
+#endif
                     }
                 }
                 return m_Hash;
             }
-
         }
 
         /// <summary>
         /// 相同信息是否折叠
         /// </summary>
-        public static bool IsCollapsed
+        public bool IsCollapsedEnable
         {
             get
             {
@@ -157,23 +190,45 @@ namespace Saro.Terminal
         }
 
         /// <summary>
-        /// 显示log
+        /// 显示时间戳
         /// </summary>
-        public static bool IsLog
+        public bool IsTimestampEnable
         {
             get
             {
-                return HasLogFlag(ELogTypeFlag.Log);
+                return HasLogFlag(ELogTypeFlag.Timestamp);
             }
             set
             {
                 if (value)
                 {
-                    SetLogFlag(ELogTypeFlag.Log);
+                    SetLogFlag(ELogTypeFlag.Timestamp);
                 }
                 else
                 {
-                    UnsetLogFlag(ELogTypeFlag.Log);
+                    UnsetLogFlag(ELogTypeFlag.Timestamp);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 显示log
+        /// </summary>
+        public bool IsInfoEnable
+        {
+            get
+            {
+                return HasLogFlag(ELogTypeFlag.Info);
+            }
+            set
+            {
+                if (value)
+                {
+                    SetLogFlag(ELogTypeFlag.Info);
+                }
+                else
+                {
+                    UnsetLogFlag(ELogTypeFlag.Info);
                 }
             }
         }
@@ -181,7 +236,7 @@ namespace Saro.Terminal
         /// <summary>
         /// 显示warning
         /// </summary>
-        public static bool IsWarning
+        public bool IsWarningEnable
         {
             get
             {
@@ -203,7 +258,7 @@ namespace Saro.Terminal
         /// <summary>
         /// 显示error
         /// </summary>
-        public static bool IsError
+        public bool IsErrorEnable
         {
             get
             {
@@ -222,131 +277,175 @@ namespace Saro.Terminal
             }
         }
 
+        public bool IsDebugAll
+        {
+            get
+            {
+                return m_LogFlag == ELogTypeFlag.DebugAll;
+            }
+        }
+
         /// <summary>
         /// 日志flag
         /// </summary>
         [System.Flags]
-        public enum ELogTypeFlag : byte
+        public enum ELogTypeFlag
         {
             None = 0,
             Error = 1 << 1,
             Warning = 1 << 2,
-            Log = 1 << 3,
+            Info = 1 << 3,
 
             Collapsed = 1 << 4,
+            Timestamp = 1 << 5,
 
-            Debug = Error | Warning | Log,
+            DebugAll = Error | Warning | Info,
 
-            All = Collapsed | Debug,
+            All = Collapsed | Timestamp | DebugAll,
         }
 
-        private static ELogTypeFlag s_LogFlag = ELogTypeFlag.All;
+        private ELogTypeFlag m_LogFlag;
 
         /// <summary>
         /// 接收unity log，view需要监听
         /// </summary>
-        public static event Action<bool, int, UnityEngine.LogType> LogMessageReceived;
+        public event Action<bool, int, int, int, int> LogMessageReceived;
         /// <summary>
         /// 折叠日志条目，每条都是唯一的，重复的不再添加进来
         /// </summary>
-        public static IReadOnlyList<LogEntry> CollapsedLogEntries => s_CollapsedLogEntries;
+        public IReadOnlyList<LogEntry> CollapsedLogEntries => m_CollapsedLogEntries;
         /// <summary>
         /// 需要显示的日志条目索引，数据源 
         /// <see cref="CollapsedLogEntries"/>
         /// </summary>
-        public static IReadOnlyList<int> LogEntryIndicesToShow => s_LogEntryIndicesToShow;
+        public IReadOnlyList<int> LogEntryIndicesToShow => m_LogEntryIndicesToShow;
 
         // store unique logentry
-        private static List<LogEntry> s_CollapsedLogEntries;
+        private List<LogEntry> m_CollapsedLogEntries;
         /// <summary>
-        /// logentry to (index, timestamp). see 
-        /// <see cref="s_CollapsedLogEntries"/>
+        /// logentry to index. see 
+        /// <see cref="m_CollapsedLogEntries"/>
         /// </summary>
-        private static Dictionary<LogEntry, int> s_CollapsedLogEntriesMap;
+        private Dictionary<LogEntry, int> m_CollapsedLogEntriesMap;
         // uncollapsed list index
-        private static List<int> s_UnCollapsedLogEntryIndices;
+        private List<int> m_UnCollapsedLogEntryIndices;
         // logentry index to show
-        private static List<int> s_LogEntryIndicesToShow;
+        private List<int> m_LogEntryIndicesToShow;
 
-        // TODO timestamp
-        //private static List<string> s_Timestamps;
-        //private static List<int> s_CollapsedTimestampsIndices;
+        private Queue<LogEntry> m_LogQueue;
+        private readonly object m_LogQueueLock = new object();
 
-        private static void InitializeConfig()
-        {
-            if (s_CollapsedLogEntries == null) s_CollapsedLogEntries = new List<LogEntry>();
-            if (s_CollapsedLogEntriesMap == null) s_CollapsedLogEntriesMap = new Dictionary<LogEntry, int>();
-            if (s_UnCollapsedLogEntryIndices == null) s_UnCollapsedLogEntryIndices = new List<int>();
-            if (s_LogEntryIndicesToShow == null) s_LogEntryIndicesToShow = new List<int>();
-            //if (s_Timestamps == null) s_Timestamps = new List<string>();
-            //if (s_CollapsedTimestampsIndices == null) s_CollapsedTimestampsIndices = new List<int>();
-        }
+        private int m_InfoCount, m_WarningCount, m_ErrorCount;
 
-        public static void ClearLog()
-        {
-            for (int i = 0; i < s_CollapsedLogEntries.Count; i++)
-            {
-                var entry = s_CollapsedLogEntries[i];
-                LogEntry.Release(entry);
-            }
+        // TODO timestamp 
+        // s_UnCollapsedLogEntryIndices 反向去重，或许可以
+        private List<string> s_Timestamps;
+        private List<int> s_CollapsedTimestampsIndices;
+        private HashSet<int> s_Set;
 
-            s_CollapsedLogEntries.Clear();
-            s_CollapsedLogEntriesMap.Clear();
-            s_UnCollapsedLogEntryIndices.Clear();
-            s_LogEntryIndicesToShow.Clear();
-
-            //s_Timestamps.Clear();
-            //s_CollapsedTimestampsIndices.Clear();
-        }
-
-        //[System.Diagnostics.Conditional("ENABLE_TERMINAL_PRINT_LOG")]
-        public static void AddUnityLogListener()
+        public Console()
         {
             InitializeConfig();
 
-            UnityEngine.Application.logMessageReceived -= Application_logMessageReceived;
-            UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
+            Terminal.Log("flag: " + m_LogFlag);
+
+            //UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
+            UnityEngine.Application.logMessageReceivedThreaded += Application_logMessageReceived;
+        }
+
+        //~Console()
+        //{
+        //    UnityEngine.Application.logMessageReceived -= Application_logMessageReceived;
+        //}
+
+        private void InitializeConfig()
+        {
+            if (m_CollapsedLogEntries == null) m_CollapsedLogEntries = new List<LogEntry>();
+            if (m_CollapsedLogEntriesMap == null) m_CollapsedLogEntriesMap = new Dictionary<LogEntry, int>();
+            if (m_UnCollapsedLogEntryIndices == null) m_UnCollapsedLogEntryIndices = new List<int>();
+            if (m_LogEntryIndicesToShow == null) m_LogEntryIndicesToShow = new List<int>();
+
+            if (m_LogQueue == null) m_LogQueue = new Queue<LogEntry>();
+
+            if (s_Timestamps == null) s_Timestamps = new List<string>();
+            if (s_CollapsedTimestampsIndices == null) s_CollapsedTimestampsIndices = new List<int>();
+            if (s_Set == null) s_Set = new HashSet<int>();
+
+            m_LogFlag = (ELogTypeFlag)UnityEngine.PlayerPrefs.GetInt(k_Terminal_Console_LogFlag, (int)ELogTypeFlag.All);
+        }
+
+        public void ClearLog()
+        {
+            for (int i = 0; i < m_CollapsedLogEntries.Count; i++)
+            {
+                var entry = m_CollapsedLogEntries[i];
+                LogEntry.Release(entry);
+            }
+
+            m_CollapsedLogEntries.Clear();
+            m_CollapsedLogEntriesMap.Clear();
+            m_UnCollapsedLogEntryIndices.Clear();
+            m_LogEntryIndicesToShow.Clear();
+
+            s_Timestamps.Clear();
+            s_CollapsedTimestampsIndices.Clear();
+            s_Set.Clear();
+
+
+            m_InfoCount = m_WarningCount = m_ErrorCount = 0;
+
+            LogMessageReceived?.Invoke(false, -1, m_InfoCount, m_WarningCount, m_ErrorCount);
         }
 
         //[System.Diagnostics.Conditional("ENABLE_TERMINAL_PRINT_LOG")]
-        public static void RemoveUnityLogListener()
-        {
-            UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
+        //public  void AddUnityLogListener()
+        //{
+        //    InitializeConfig();
 
-            ClearLog();
-        }
+        //    UnityEngine.Application.logMessageReceived -= Application_logMessageReceived;
+        //    UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
+
+        //}
+
+        ////[System.Diagnostics.Conditional("ENABLE_TERMINAL_PRINT_LOG")]
+        //public  void RemoveUnityLogListener()
+        //{
+        //    UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
+
+        //    ClearLog();
+        //}
 
         /// <summary>
         /// log filter. see
         /// <see cref="ELogTypeFlag"/>
         /// </summary>
-        public static void FilterLog()
+        internal void FilterLog()
         {
-            s_LogEntryIndicesToShow.Clear();
+            m_LogEntryIndicesToShow.Clear();
 
             if (HasLogFlag(ELogTypeFlag.Collapsed))
             {
-                for (int i = 0; i < s_CollapsedLogEntries.Count; i++)
+                for (int i = 0; i < m_CollapsedLogEntries.Count; i++)
                 {
-                    var entry = s_CollapsedLogEntries[i];
-                    if (HasLogFlag(ELogTypeFlag.Log) && entry.logType == UnityEngine.LogType.Log ||
+                    var entry = m_CollapsedLogEntries[i];
+                    if (HasLogFlag(ELogTypeFlag.Info) && entry.logType == UnityEngine.LogType.Log ||
                         HasLogFlag(ELogTypeFlag.Warning) && entry.logType == UnityEngine.LogType.Warning ||
                         HasLogFlag(ELogTypeFlag.Error) && entry.logType == UnityEngine.LogType.Error)
                     {
-                        s_LogEntryIndicesToShow.Add(i);
+                        m_LogEntryIndicesToShow.Add(i);
                     }
                 }
             }
             else
             {
-                for (int i = 0; i < s_UnCollapsedLogEntryIndices.Count; i++)
+                for (int i = 0; i < m_UnCollapsedLogEntryIndices.Count; i++)
                 {
-                    var entry = s_CollapsedLogEntries[s_UnCollapsedLogEntryIndices[i]];
-                    if (HasLogFlag(ELogTypeFlag.Log) && entry.logType == UnityEngine.LogType.Log ||
+                    var entry = m_CollapsedLogEntries[m_UnCollapsedLogEntryIndices[i]];
+                    if (HasLogFlag(ELogTypeFlag.Info) && entry.logType == UnityEngine.LogType.Log ||
                         HasLogFlag(ELogTypeFlag.Warning) && entry.logType == UnityEngine.LogType.Warning ||
                         HasLogFlag(ELogTypeFlag.Error) && entry.logType == UnityEngine.LogType.Error)
                     {
-                        s_LogEntryIndicesToShow.Add(s_UnCollapsedLogEntryIndices[i]);
+                        m_LogEntryIndicesToShow.Add(m_UnCollapsedLogEntryIndices[i]);
                     }
                 }
             }
@@ -357,22 +456,33 @@ namespace Saro.Terminal
         /// <code>TODO: maybe chinese character cause error</code>
         /// </summary>
         /// <returns></returns>
-        public static string GetLog()
+        public string GetLog()
         {
             int strLen = 100; // in case
             int newLineLen = Environment.NewLine.Length;
 
-            for (int i = 0; i < s_UnCollapsedLogEntryIndices.Count; i++)
+            for (int i = 0; i < m_UnCollapsedLogEntryIndices.Count; i++)
             {
-                var entry = s_CollapsedLogEntries[s_UnCollapsedLogEntryIndices[i]];
-                strLen += entry.logString.Length + entry.stackTrace.Length + newLineLen * 3;
+                var entry = m_CollapsedLogEntries[m_UnCollapsedLogEntryIndices[i]];
+                strLen += entry.logString.Length
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    + entry.stackTrace.Length
+#endif
+
+                    + newLineLen * 3;
             }
 
             var sb = StringBuilderCache.Acquire(strLen);
-            for (int i = 0; i < s_UnCollapsedLogEntryIndices.Count; i++)
+            for (int i = 0; i < m_UnCollapsedLogEntryIndices.Count; i++)
             {
-                var entry = s_CollapsedLogEntries[s_UnCollapsedLogEntryIndices[i]];
-                sb.AppendLine(entry.logString).AppendLine(entry.stackTrace);
+                var entry = m_CollapsedLogEntries[m_UnCollapsedLogEntryIndices[i]];
+                sb.AppendLine(entry.logString)
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    .AppendLine(entry.stackTrace)
+#endif
+                    ;
 
                 sb.AppendLine();
             }
@@ -381,61 +491,107 @@ namespace Saro.Terminal
         }
 
         /// <summary>
-        /// receive unity log message
+        /// receive unity log message. see 
+        /// <see cref="UnityEngine.Application.logMessageReceived"/>
         /// </summary>
         /// <param name="logString"></param>
         /// <param name="stackTrace"></param>
         /// <param name="logType"></param>
-        private static void Application_logMessageReceived(string logString, string stackTrace, UnityEngine.LogType logType)
+        private void Application_logMessageReceived(string logString, string stackTrace, UnityEngine.LogType logType)
         {
             var entry = LogEntry.Create(logString, stackTrace, logType);
-            var has = s_CollapsedLogEntriesMap.TryGetValue(entry, out int index);
+
+            lock (m_LogQueueLock)
+            {
+                m_LogQueue.Enqueue(entry);
+            }
+        }
+
+        /// <summary>
+        /// call at lateupdate
+        /// </summary>
+        internal void ProcessLogQueue()
+        {
+            // 是否需要限制每帧处理的数量？？？
+            while (m_LogQueue.Count > 0)
+            {
+                LogEntry entry = null;
+
+                lock (m_LogQueueLock)
+                {
+                    entry = m_LogQueue.Dequeue();
+                }
+
+                ProcessLog(entry);
+            }
+        }
+
+        private void ProcessLog(LogEntry entry)
+        {
+            var has = m_CollapsedLogEntriesMap.TryGetValue(entry, out int index);
 
             //s_Timestamps.Add($"[{DateTime.Now.Ticks}]");
-
+            var type = entry.logType;
             if (has)
             {
-                s_CollapsedLogEntries[index].count++;
+                m_CollapsedLogEntries[index].count++;
                 LogEntry.Release(entry);
 
                 //s_CollapsedTimestampsIndices[index] = s_Timestamps.Count - 1;
             }
             else
             {
-                index = s_CollapsedLogEntries.Count;
-                s_CollapsedLogEntries.Add(entry);
+                index = m_CollapsedLogEntries.Count;
+                m_CollapsedLogEntries.Add(entry);
 
-                s_CollapsedLogEntriesMap[entry] = index;
+                m_CollapsedLogEntriesMap[entry] = index;
 
                 //s_CollapsedTimestampsIndices.Add(index);
             }
 
-            if (!(HasLogFlag(ELogTypeFlag.Collapsed) && has) && HasLogFlag(ELogTypeFlag.Error) || HasLogFlag(ELogTypeFlag.Warning) || HasLogFlag(ELogTypeFlag.Log))
+            if (!(HasLogFlag(ELogTypeFlag.Collapsed) && has))
             {
-                s_LogEntryIndicesToShow.Add(index);
+                if (HasLogFlag(ELogTypeFlag.Error) ||
+                    HasLogFlag(ELogTypeFlag.Warning) ||
+                    HasLogFlag(ELogTypeFlag.Info))
+                {
+                    m_LogEntryIndicesToShow.Add(index);
+                }
             }
 
-            s_UnCollapsedLogEntryIndices.Add(index);
+            if (type == UnityEngine.LogType.Error) m_ErrorCount++;
+            if (type == UnityEngine.LogType.Warning) m_WarningCount++;
+            if (type == UnityEngine.LogType.Log) m_InfoCount++;
 
-            LogMessageReceived?.Invoke(has, index, logType);
+            m_UnCollapsedLogEntryIndices.Add(index);
+
+            LogMessageReceived?.Invoke(has, index, m_InfoCount, m_WarningCount, m_ErrorCount);
         }
 
-        private static void SetLogFlag(ELogTypeFlag type)
+        internal int GetEntryIndexAtIndicesToShow(int entryIndex)
         {
-            s_LogFlag |= type;
+            return m_LogEntryIndicesToShow.IndexOf(entryIndex);
         }
 
-        private static void UnsetLogFlag(ELogTypeFlag type)
+        internal void SaveSettings()
         {
-            s_LogFlag &= ~type;
+            UnityEngine.PlayerPrefs.SetInt(k_Terminal_Console_LogFlag, (int)m_LogFlag);
         }
 
-        private static bool HasLogFlag(ELogTypeFlag type)
+        private void SetLogFlag(ELogTypeFlag type)
         {
-            return (s_LogFlag & type) != 0;
+            m_LogFlag |= type;
         }
 
-        #endregion
+        private void UnsetLogFlag(ELogTypeFlag type)
+        {
+            m_LogFlag &= ~type;
+        }
+
+        private bool HasLogFlag(ELogTypeFlag type)
+        {
+            return (m_LogFlag & type) != 0;
+        }
     }
 }
 

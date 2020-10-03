@@ -95,6 +95,12 @@
             }
         }
 
+        public void FastClear()
+        {
+            m_Size = 0;
+            m_Tail = 0;
+        }
+
         private int FindIndex(T value)
         {
             for (int i = 0; i < m_Size; i++)
