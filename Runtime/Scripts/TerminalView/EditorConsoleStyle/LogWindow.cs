@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Saro.Terminal
+namespace Saro.Terminal.View.EditorStyle
 {
     public class LogWindow : MonoBehaviour
     {
@@ -24,6 +24,10 @@ namespace Saro.Terminal
         [SerializeField] private Text m_WarningEntryCountText;
         [SerializeField] private Text m_ErrorEntryCountText;
 
+        [SerializeField] private RectTransform m_InfoEntryCountParent;
+        [SerializeField] private RectTransform m_ErrorEntryCountParent;
+        [SerializeField] private RectTransform m_WarningEntryCountParent;
+
 #pragma warning disable 649
 
         private float m_ViewportHeight;
@@ -31,7 +35,7 @@ namespace Saro.Terminal
         private float m_ItemHeightReciprocal;
         private float m_SelectedItemHeight;
 
-        private IReadOnlyList<Terminal.LogEntry> m_CollapsedLogEntries = null;
+        private IReadOnlyList<Console.LogEntry> m_CollapsedLogEntries = null;
         private IReadOnlyList<int> m_LogEntryIndicesToShow = null;
         private Dictionary<int, LogItem> m_LogItemsLookup = null;//根据index（LogEntryIndicesToShow），获取LogItem
 
@@ -46,7 +50,7 @@ namespace Saro.Terminal
         private float m_PositionOfSelectedLogEntry = -1;
         private float m_DeltaHeightOfSelectedLogEntry;
 
-        public void Init(IReadOnlyList<Terminal.LogEntry> collapsedLogEntries, IReadOnlyList<int> logEntryIndicesToShow)
+        public void Init(IReadOnlyList<Console.LogEntry> collapsedLogEntries, IReadOnlyList<int> logEntryIndicesToShow)
         {
             // get component and register event
             m_CanvasGroup = GetComponent<CanvasGroup>();
@@ -156,6 +160,14 @@ namespace Saro.Terminal
             if (m_LogItemsLookup.TryGetValue(idx, out LogItem logItem))
             {
                 logItem.ShowCount();
+            }
+        }
+
+        public void SelectItemByIndex(int idx)
+        {
+            if (m_LogItemsLookup.TryGetValue(idx, out LogItem logItem))
+            {
+                OnSelectLogItem(logItem);
             }
         }
 
@@ -286,22 +298,42 @@ namespace Saro.Terminal
             }
         }
 
+        const float k_PrefixWidth = 18.5f;
+        const string k_999 = "999+";
         // --------------------------------------------------------
         // update text
         // --------------------------------------------------------
         public void UpdateInfoCountText(int count)
         {
-            m_InfoEntryCountText.text = count.ToString();
+            if (count > 999) m_InfoEntryCountText.text = k_999;
+            else m_InfoEntryCountText.text = count.ToString();
+
+            var sizeDelta = m_InfoEntryCountParent.sizeDelta;
+            var width = m_InfoEntryCountText.preferredWidth;
+            sizeDelta.x = width + k_PrefixWidth;
+            m_InfoEntryCountParent.sizeDelta = sizeDelta;
         }
 
         public void UpdateErrorCountText(int count)
         {
-            m_ErrorEntryCountText.text = count.ToString();
+            if (count > 999) m_ErrorEntryCountText.text = k_999;
+            else m_ErrorEntryCountText.text = count.ToString();
+
+            var sizeDelta = m_ErrorEntryCountParent.sizeDelta;
+            var width = m_ErrorEntryCountText.preferredWidth;
+            sizeDelta.x = width + k_PrefixWidth;
+            m_ErrorEntryCountParent.sizeDelta = sizeDelta;
         }
 
         public void UpdateWarningCountText(int count)
         {
-            m_WarningEntryCountText.text = count.ToString();
+            if (count > 999) m_WarningEntryCountText.text = k_999;
+            else m_WarningEntryCountText.text = count.ToString();
+
+            var sizeDelta = m_WarningEntryCountParent.sizeDelta;
+            var width = m_WarningEntryCountText.preferredWidth;
+            sizeDelta.x = width + k_PrefixWidth;
+            m_WarningEntryCountParent.sizeDelta = sizeDelta;
         }
 
         #endregion

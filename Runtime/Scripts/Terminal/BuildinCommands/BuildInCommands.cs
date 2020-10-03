@@ -44,7 +44,7 @@ namespace Saro.Terminal
             try
             {
                 string path = Path.Combine(Application.persistentDataPath, DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss") + ".txt");
-                File.WriteAllText(path, Terminal.GetLog());
+                File.WriteAllText(path, Terminal.Console.GetLog());
 
                 Terminal.Log("Save log file to : " + path);
             }
@@ -52,6 +52,18 @@ namespace Saro.Terminal
             {
                 Terminal.LogError(e.Message);
             }
+        }
+
+        [Command("core.clear_cmd_histories", "清理命令历史")]
+        public static void clear_cmd_histories()
+        {
+            Terminal.Shell.ClearCommandHistory();
+        }
+
+        [Command("core.clear_log", "清除所有日志")]
+        public static void clear_log()
+        {
+            Terminal.Console.ClearLog();
         }
     }
 }

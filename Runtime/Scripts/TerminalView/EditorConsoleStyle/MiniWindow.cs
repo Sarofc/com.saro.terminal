@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Saro.Terminal
+namespace Saro.Terminal.View.EditorStyle
 {
     public class MiniWindow : MonoBehaviour, /*IPointerEnterHandler, IPointerExitHandler,*/ IPointerClickHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
