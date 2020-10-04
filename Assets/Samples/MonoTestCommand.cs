@@ -17,7 +17,7 @@ public class MonoTestCommand : MonoBehaviour
         thread.Start();
 
         var sec = new WaitForSeconds(0.5f);
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 5; i++)
         {
             Saro.Terminal.Terminal.Log("[main thread] tick");
             yield return sec;
