@@ -1,0 +1,15 @@
+{
+    "name": "com.saro.terminal",
+    "version": "0.0.1",
+    "displayName": "Terminal",
+    "description": "运行时终端。提供界面显示日志，以及一个命令行工具。方便调试游戏。",
+    "unity": "2019.4",
+    "dependencies": {},
+    "keywords": [
+        "terminal",
+        "console"
+    ],
+    "author": {
+        "name": "saro"
+    }
+}
