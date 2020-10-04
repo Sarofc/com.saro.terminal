@@ -344,6 +344,11 @@ namespace Saro.Terminal.View.EditorStyle
                 }
             }
 
+            //if (m_ExpandLatestLogItem)
+            //{
+            //    m_LogWindow.SelectItemByIndex(Terminal.Console.LogEntryIndicesToShow.Count - 1);
+            //}
+
             m_LogWindow.SnapToBottom();
         }
 
