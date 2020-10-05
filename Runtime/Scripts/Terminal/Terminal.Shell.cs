@@ -112,7 +112,9 @@ namespace Saro.Terminal
                 {
                     if (!System.IO.File.Exists(fullpath))
                     {
-                        using (System.IO.File.Create(fullpath)) ;
+                        using (System.IO.File.Create(fullpath))
+                        {
+                        }
                     }
 
                     using (var fs = new System.IO.FileStream(fullpath, System.IO.FileMode.Truncate, System.IO.FileAccess.Write))

@@ -347,7 +347,7 @@ namespace Saro.Terminal
         {
             InitializeConfig();
 
-            Terminal.Log("flag: " + m_LogFlag);
+            //Terminal.Log("flag: " + m_LogFlag);
 
             //UnityEngine.Application.logMessageReceived += Application_logMessageReceived;
             UnityEngine.Application.logMessageReceivedThreaded += Application_logMessageReceived;
