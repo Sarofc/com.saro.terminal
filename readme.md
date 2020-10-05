@@ -11,14 +11,7 @@
 
 > ## 安装
 
-- 使用UPM。 输入 https://github.com/Sarofc/DevConsole-Unity.git#package
-
-> ## 截图
-
-<img src="https://github.com/Sarofc/DevConsole-Unity/blob/master/src/GIF.gif?raw=true" width=60%>
-
-<img src="https://github.com/Sarofc/DevConsole-Unity/blob/master/src/GIF2.gif?raw=true" width=60%>
-
+- 使用UPM。 输入 https://github.com/Sarofc/DevConsole-Unity.git
 
 > ## 参考
 
