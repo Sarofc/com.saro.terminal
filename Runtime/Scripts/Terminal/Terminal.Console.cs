@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.Collections.Generic;
 
 
@@ -12,7 +14,7 @@ namespace Saro.Terminal
     // TODO 
     // 时间戳
 
-    public class Console
+    internal class Console
     {
         private const string k_Terminal_Console_LogFlag = "terminal_console_logflag";
 
@@ -339,11 +341,11 @@ namespace Saro.Terminal
 
         // TODO timestamp 
         // s_UnCollapsedLogEntryIndices 反向去重，或许可以
-        private List<string> s_Timestamps;
-        private List<int> s_CollapsedTimestampsIndices;
-        private HashSet<int> s_Set;
+        private List<string> m_Timestamps;
+        private List<int> m_CollapsedTimestampsIndices;
+        private HashSet<int> m_Set;
 
-        public Console()
+        internal Console()
         {
             InitializeConfig();
 
@@ -367,14 +369,14 @@ namespace Saro.Terminal
 
             if (m_LogQueue == null) m_LogQueue = new Queue<LogEntry>();
 
-            if (s_Timestamps == null) s_Timestamps = new List<string>();
-            if (s_CollapsedTimestampsIndices == null) s_CollapsedTimestampsIndices = new List<int>();
-            if (s_Set == null) s_Set = new HashSet<int>();
+            if (m_Timestamps == null) m_Timestamps = new List<string>();
+            if (m_CollapsedTimestampsIndices == null) m_CollapsedTimestampsIndices = new List<int>();
+            if (m_Set == null) m_Set = new HashSet<int>();
 
             m_LogFlag = (ELogTypeFlag)UnityEngine.PlayerPrefs.GetInt(k_Terminal_Console_LogFlag, (int)ELogTypeFlag.All);
         }
 
-        public void ClearLog()
+        internal void ClearLog()
         {
             for (int i = 0; i < m_CollapsedLogEntries.Count; i++)
             {
@@ -387,9 +389,9 @@ namespace Saro.Terminal
             m_UnCollapsedLogEntryIndices.Clear();
             m_LogEntryIndicesToShow.Clear();
 
-            s_Timestamps.Clear();
-            s_CollapsedTimestampsIndices.Clear();
-            s_Set.Clear();
+            m_Timestamps.Clear();
+            m_CollapsedTimestampsIndices.Clear();
+            m_Set.Clear();
 
 
             m_InfoCount = m_WarningCount = m_ErrorCount = 0;
@@ -456,7 +458,7 @@ namespace Saro.Terminal
         /// <code>TODO: maybe chinese character cause error</code>
         /// </summary>
         /// <returns></returns>
-        public string GetLog()
+        internal string GetLog()
         {
             int strLen = 100; // in case
             int newLineLen = Environment.NewLine.Length;
@@ -595,3 +597,4 @@ namespace Saro.Terminal
     }
 }
 
+#endif

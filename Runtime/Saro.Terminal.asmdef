@@ -1,5 +1,6 @@
 {
-    "name": "Terminal",
+    "name": "Saro.Terminal",
+    "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

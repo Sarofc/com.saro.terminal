@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.IO;
 using UnityEngine;
 
 namespace Saro.Terminal
 {
-    public partial class BuildInCommands
+    internal partial class BuildInCommands
     {
         [Command("core.terminal_info", "控制台信息")]
         public static void terminal_info()
@@ -67,3 +69,6 @@ namespace Saro.Terminal
         }
     }
 }
+
+
+#endif

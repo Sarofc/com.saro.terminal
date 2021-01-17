@@ -1,5 +1,6 @@
 {
-    "name": "Terminal.Editor",
+    "name": "Saro.Terminal.Editor",
+    "rootNamespace": "",
     "references": [
         "GUID:dbdaefc3ac17a37429a94d14041921ef"
     ],

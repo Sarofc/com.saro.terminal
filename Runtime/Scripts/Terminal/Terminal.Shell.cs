@@ -1,9 +1,19 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace Saro.Terminal
 {
+    /// <summary>
+    /// 参数解析委托
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    /// <returns></returns>
+    public delegate bool TypeParser(string input, out object output);
+
     /*
      *  Warning :
      *  Don't support command overload!
@@ -20,17 +30,9 @@ namespace Saro.Terminal
     /// <summary>
     /// 处理用户命令
     /// </summary>
-    public class Shell
+    internal class Shell
     {
         private const string k_CommandHistoryPath = "/cmd.txt";
-
-        /// <summary>
-        /// 参数解析委托
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="output"></param>
-        /// <returns></returns>
-        public delegate bool TypeParser(string input, out object output);
 
         // 命令map
         private SortedDictionary<string, Command> m_CommandMap = null;
@@ -54,7 +56,7 @@ namespace Saro.Terminal
         /// </summary>
         private readonly List<char> m_InvalidChrsForCommandName = new List<char> { ' ', /*'-',*/ '/', '\\', '\b', '\t', };
 
-        public Shell()
+        internal Shell()
         {
             // 初始化各种容器
             m_CommandMap = new SortedDictionary<string, Command>();
@@ -142,7 +144,7 @@ namespace Saro.Terminal
         /// </summary>
         /// <param name="type"></param>
         /// <param name="fn"></param>
-        public void RegisterType(Type type, TypeParser fn)
+        internal void RegisterType(Type type, TypeParser fn)
         {
             if (m_TypeMap.ContainsKey(type))
             {
@@ -158,7 +160,7 @@ namespace Saro.Terminal
         /// </summary>
         /// <param name="classType"></param>
         /// <param name="instance"></param>
-        public void AddCommandInstance(Type classType, object instance)
+        internal void AddCommandInstance(Type classType, object instance)
         {
             if (instance == null)
             {
@@ -182,7 +184,7 @@ namespace Saro.Terminal
         /// 移除命令
         /// </summary>
         /// <param name="command">命令名称</param>
-        public void RemoveCommand(string command)
+        internal void RemoveCommand(string command)
         {
             if (m_CommandMap.ContainsKey(command))
             {
@@ -194,7 +196,7 @@ namespace Saro.Terminal
         /// 执行命令
         /// </summary>
         /// <param name="commandLine">包括命令名称以及参数</param>
-        public void ExecuteCommand(string commandLine)
+        internal void ExecuteCommand(string commandLine)
         {
             // parse command
             // [0] is command
@@ -251,7 +253,7 @@ namespace Saro.Terminal
         /// <summary>
         /// 绑定Assembly-CSharp程序集里所有静态命令
         /// </summary>
-        public void AddAllCommand()
+        internal void AddAllCommand()
         {
             IEnumerable<Type> types = ReflectionUtil.GetAllAssemblyTypes;
             foreach (Type type in types)
@@ -264,7 +266,7 @@ namespace Saro.Terminal
         /// 绑定指定类里的静态命令
         /// </summary>
         /// <param name="classType"></param>
-        public void AddCommand(Type classType)
+        internal void AddCommand(Type classType)
         {
             MethodInfo[] methods = classType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (MethodInfo method in methods)
@@ -363,7 +365,7 @@ namespace Saro.Terminal
         /// 命令自动补全
         /// </summary>
         /// <returns></returns>
-        public string AutoComplete()
+        internal string AutoComplete()
         {
             if (m_AutoCompleteCache.Count == 0) return null;
 
@@ -375,7 +377,7 @@ namespace Saro.Terminal
         /// 获取可能的命令，并缓存下来
         /// </summary>
         /// <param name="header"></param>
-        public void GetPossibleCommand(string header)
+        internal void GetPossibleCommand(string header)
         {
             if (string.IsNullOrEmpty(header))
             {
@@ -613,3 +615,5 @@ namespace Saro.Terminal
 
     }
 }
+
+#endif

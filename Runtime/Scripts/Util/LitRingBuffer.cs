@@ -1,4 +1,6 @@
-﻿namespace Saro.Terminal
+﻿#if true
+
+namespace Saro.Terminal
 {
     /*
      *  ring buffer
@@ -121,3 +123,5 @@
         }
     }
 }
+
+#endif

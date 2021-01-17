@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace Saro.Terminal
 {
-    public static class ReflectionUtil
+    internal static class ReflectionUtil
     {
         private static IEnumerable<Type> s_AllAssemblyTypes;
 
@@ -21,3 +23,5 @@ namespace Saro.Terminal
         }
     }
 }
+
+#endif

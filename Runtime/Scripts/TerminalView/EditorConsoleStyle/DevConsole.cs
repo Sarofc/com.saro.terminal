@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -379,6 +381,7 @@ namespace Saro.Terminal.View.EditorStyle
             }
         }
 
+
         private void ProcessKey()
         {
 #if UNITY_STANDALONE || UNITY_EDITOR
@@ -611,3 +614,5 @@ namespace Saro.Terminal.View.EditorStyle
         #endregion
     }
 }
+
+#endif

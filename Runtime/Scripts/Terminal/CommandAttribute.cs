@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if true
+
+using System;
 
 namespace Saro.Terminal
 {
@@ -16,3 +18,5 @@ namespace Saro.Terminal
         }
     }
 }
+
+#endif

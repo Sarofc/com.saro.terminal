@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if true
+
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -49,7 +51,7 @@ namespace Saro.Terminal.View.EditorStyle
             }
         }
 
-        public void SetContent(Console.LogEntry logEntry, int entryIdx, bool isExpanded, float selectedHeight, float normalHeight)
+        internal void SetContent(Console.LogEntry logEntry, int entryIdx, bool isExpanded, float selectedHeight, float normalHeight)
         {
             m_LogEntry = logEntry;
             EntryIdx = entryIdx;
@@ -121,3 +123,5 @@ namespace Saro.Terminal.View.EditorStyle
         }
     }
 }
+
+#endif

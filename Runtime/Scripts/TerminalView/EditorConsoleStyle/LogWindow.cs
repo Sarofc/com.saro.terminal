@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if true
+
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,7 +52,7 @@ namespace Saro.Terminal.View.EditorStyle
         private float m_PositionOfSelectedLogEntry = -1;
         private float m_DeltaHeightOfSelectedLogEntry;
 
-        public void Init(IReadOnlyList<Console.LogEntry> collapsedLogEntries, IReadOnlyList<int> logEntryIndicesToShow)
+        internal void Init(IReadOnlyList<Console.LogEntry> collapsedLogEntries, IReadOnlyList<int> logEntryIndicesToShow)
         {
             // get component and register event
             m_CanvasGroup = GetComponent<CanvasGroup>();
@@ -445,3 +447,5 @@ namespace Saro.Terminal.View.EditorStyle
 
     }
 }
+
+#endif

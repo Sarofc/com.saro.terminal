@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿#if true
+
+using NUnit.Framework;
 using System;
 
 namespace Saro.Terminal.Test
@@ -283,3 +285,5 @@ namespace Saro.Terminal.Test
         }
     }
 }
+
+#endif

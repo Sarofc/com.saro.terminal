@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if true
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Saro.Terminal
 {
-    public static class StringBuilderCache
+    internal static class StringBuilderCache
     {
         // The value 360 was chosen in discussion with performance experts as a compromise between using
         // as litle memory (per thread) as possible and still covering a large part of short-lived
@@ -50,3 +52,5 @@ namespace Saro.Terminal
         }
     }
 }
+
+#endif

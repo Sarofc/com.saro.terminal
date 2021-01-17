@@ -1,9 +1,12 @@
-﻿using System;
+﻿#if true
+
+
+using System;
 using System.Reflection;
 
 namespace Saro.Terminal
 {
-    public class Command
+    internal class Command
     {
         private readonly MethodInfo m_Method;
         private readonly Type[] m_ParamsTypes;
@@ -49,3 +52,5 @@ namespace Saro.Terminal
         }
     }
 }
+
+#endif
